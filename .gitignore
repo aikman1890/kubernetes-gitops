@@ -1,0 +1,18 @@
+# Rendered manifests / local build output
+rendered/
+*.rendered.yaml
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*~
+*.swp
+.idea/
+.vscode/
+
+# Secrets — never commit these; use SealedSecrets or External Secrets instead
+*.key
+*.pem
+secrets*.yaml
+*-secret.yaml
+.env

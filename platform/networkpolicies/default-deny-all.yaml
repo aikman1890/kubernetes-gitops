@@ -1,0 +1,12 @@
+# Default deny: drop all ingress and egress traffic in the platform namespace.
+# Explicit allow policies (allow-dns.yaml and friends) punch the holes we need.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: platform
+spec:
+  podSelector: {} # applies to every pod in the namespace
+  policyTypes:
+    - Ingress
+    - Egress

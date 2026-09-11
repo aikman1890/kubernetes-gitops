@@ -1,0 +1,53 @@
+# Dev overlay: small footprint, cheap to run, still production-shaped.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../apps/sample-api/base
+
+namespace: apps-dev
+
+patches:
+  # Dev runs 2 replicas — enough for basic availability testing.
+  - target:
+      kind: Deployment
+      name: sample-api
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: sample-api
+      spec:
+        replicas: 2
+  # Dev HPA: scale from 1 so idle dev costs nothing.
+  - target:
+      kind: HorizontalPodAutoscaler
+      name: sample-api
+    patch: |-
+      apiVersion: autoscaling/v2
+      kind: HorizontalPodAutoscaler
+      metadata:
+        name: sample-api
+      spec:
+        minReplicas: 1
+  # Dev container resources: lean requests, modest limits.
+  - target:
+      kind: Deployment
+      name: sample-api
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: sample-api
+      spec:
+        template:
+          spec:
+            containers:
+              - name: api
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 64Mi
+                  limits:
+                    cpu: 250m
+                    memory: 256Mi

@@ -1,0 +1,37 @@
+# Guardrails for any container that forgets requests/limits: give it sane
+# defaults and enforce ceilings so a single bad manifest can't eat a node.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-container-limits
+  namespace: apps-dev
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+      max:
+        cpu: "4"
+        memory: 8Gi
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-container-limits
+  namespace: apps-prod
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+      max:
+        cpu: "8"
+        memory: 16Gi

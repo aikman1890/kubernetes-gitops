@@ -1,0 +1,15 @@
+# Keep at least two replicas (or all-but-one at small scale) available during
+# voluntary disruptions — node drains, cluster upgrades — so rollouts don't
+# take the API offline.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: sample-api
+  labels:
+    app.kubernetes.io/name: sample-api
+    app.kubernetes.io/managed-by: gitops
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sample-api

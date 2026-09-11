@@ -1,0 +1,39 @@
+# Zero-trust for the app: ingress comes ONLY from the ingress-nginx
+# controller pods, and egress is limited to DNS resolution. Every other
+# flow the app needs (databases, caches) gets its own explicit allow rule.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sample-api
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: sample-api
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx # standard label on the ingress-nginx namespace
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # DNS (CoreDNS) — required for any outbound name resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

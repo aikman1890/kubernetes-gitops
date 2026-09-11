@@ -1,0 +1,8 @@
+# Thin per-app shim so the ArgoCD ApplicationSet (which discovers apps under
+# apps/*) can point at apps/<name>/overlays/<env>. All real customization
+# lives in kustomize/overlays/<env>; this file just re-exports it.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../../kustomize/overlays/prod

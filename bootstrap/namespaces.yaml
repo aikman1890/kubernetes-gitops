@@ -1,0 +1,38 @@
+# Bootstrapped namespaces — applied first by the app-of-apps sync wave.
+# Labels follow the Kubernetes recommended label set so NetworkPolicies,
+# PodSecurity, and observability tooling can select on them.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform
+  labels:
+    app.kubernetes.io/managed-by: gitops
+    environment: platform
+    network-priority: infrastructure
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/managed-by: gitops
+    environment: platform
+    network-priority: infrastructure
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apps-dev
+  labels:
+    app.kubernetes.io/managed-by: gitops
+    environment: dev
+    network-priority: application
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apps-prod
+  labels:
+    app.kubernetes.io/managed-by: gitops
+    environment: prod
+    network-priority: application

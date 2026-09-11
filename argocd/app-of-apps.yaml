@@ -1,0 +1,56 @@
+# app-of-apps: a single ApplicationSet that discovers every app directory
+# under apps/* and generates one ArgoCD Application per directory.
+#
+# How it works:
+#   1. The `git` generator lists directories under apps/* in this repo.
+#   2. For each directory it templates an Application that points ArgoCD at
+#      that directory's kustomize overlay (apps/<name>/overlays/prod — or
+#      dev, per target namespace set in goTemplate parameters).
+#   3. ArgoCD then syncs that Application's manifests to the cluster.
+#
+# To onboard a new app: copy apps/sample-api to apps/<name>, adjust the
+# manifests, push to main — ArgoCD creates and syncs it automatically.
+# No changes to this file needed.
+#
+# NOTE: replace repoURL with your fork's URL before installing.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: app-of-apps
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/example-org/kubernetes-gitops.git # CHANGE ME
+        revision: main
+        directories:
+          - path: apps/*
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  template:
+    metadata:
+      name: "apps-{{.path.basename}}-prod"
+      labels:
+        app.kubernetes.io/managed-by: gitops
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/example-org/kubernetes-gitops.git # CHANGE ME
+        targetRevision: main
+        path: "{{.path.path}}/overlays/prod"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: apps-prod
+      syncPolicy:
+        automated:
+          prune: true # delete resources removed from git
+          selfHeal: true # revert manual kubectl edits back to git state
+          allowEmpty: false
+        syncOptions:
+          - CreateNamespace=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m

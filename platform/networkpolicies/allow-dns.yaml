@@ -1,0 +1,25 @@
+# Companion to default-deny-all.yaml: allow pods to reach kube-dns (CoreDNS)
+# on both UDP and TCP port 53. Without this, name resolution silently dies
+# the moment the default-deny policy applies.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: platform
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system # standard label on the kube-system namespace
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns # CoreDNS pods carry this label
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

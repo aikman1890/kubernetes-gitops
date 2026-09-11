@@ -1,0 +1,31 @@
+# Quotas for the application namespaces so one noisy team can't starve the
+# other, and so nobody can schedule unbounded resource claims.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: apps-dev-quota
+  namespace: apps-dev
+spec:
+  hard:
+    requests.cpu: "8"
+    requests.memory: 16Gi
+    limits.cpu: "16"
+    limits.memory: 32Gi
+    pods: "50"
+    services: "20"
+    persistentvolumeclaims: "20"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: apps-prod-quota
+  namespace: apps-prod
+spec:
+  hard:
+    requests.cpu: "32"
+    requests.memory: 64Gi
+    limits.cpu: "64"
+    limits.memory: 128Gi
+    pods: "200"
+    services: "50"
+    persistentvolumeclaims: "50"

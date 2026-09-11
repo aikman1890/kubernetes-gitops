@@ -1,0 +1,30 @@
+# Public entry via ingress-nginx. cert-manager's ClusterIssuer issues the TLS
+# cert automatically (http01 solver), and the force-ssl-redirect annotation
+# keeps plain HTTP from ever reaching the pods.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-api
+  labels:
+    app.kubernetes.io/name: sample-api
+    app.kubernetes.io/managed-by: gitops
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.example.com # replace with your real hostname
+      secretName: sample-api-tls
+  rules:
+    - host: api.example.com # replace with your real hostname
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sample-api
+                port:
+                  name: http
